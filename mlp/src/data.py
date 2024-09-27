@@ -14,7 +14,7 @@ class CPDataset(Dataset):
         return len(self.X)
 
     def __getitem__(self, idx):
-        X = torch.from_numpy(np.delete(self.X[idx], -1)).float()
+        X = torch.from_numpy(self.X[idx]).float()
         y = torch.Tensor([self.y.iloc[idx]]).float()
         
         return {

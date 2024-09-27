@@ -20,18 +20,21 @@ class CPModule(L.LightningModule):
         y = batch.get('y')
 
         output = self.model(X)
-        output = torch.sigmoid(output)
-        self.loss = F.binary_cross_entropy(output, y)  # calculate loss (MSE 손실 함수 사용)
-        # with logits?
+        # output = torch.sigmoid(output)
+        self.loss = F.binary_cross_entropy_with_logits(output, y)  # calculate loss
 
-        y_pred = output.argmax(axis=-1)
+        y_pred = (output > 0.5).float()
         self.acc = (y_pred == y).float().mean()
 
-        return self.loss  # 계산된 손실 반환
+        return {
+            'loss': self.loss,
+            'acc': self.acc
+        }
     
     def on_train_epoch_end(self, *args, **kwargs):
         self.log_dict(
-            {'loss/train_loss': self.loss, 'acc/train_acc': self.acc},
+            {'loss/train_loss': self.loss,
+             'acc/train_acc': self.acc},
             on_epoch=True,
             prog_bar=True,
             logger=True,
@@ -42,20 +45,22 @@ class CPModule(L.LightningModule):
         y = batch.get('y')
 
         output = self.model(X)
-        output = torch.sigmoid(output)
-        self.val_loss = F.binary_cross_entropy(output, y)
+        # output = torch.sigmoid(output)
+        self.val_loss = F.binary_cross_entropy_with_logits(output, y)
         # with logits?
 
-        y_pred = output.argmax(axis=-1)
+        y_pred = (output > 0.5).float()
         self.val_acc = (y_pred == y).float().mean()
 
-        return self.val_loss  # 검증 손실 반환
+        return {
+            'loss': self.val_loss,
+            'acc': self.val_acc
+        }
     
     def on_validation_epoch_end(self):
         self.log_dict(
             {'loss/val_loss': self.val_loss,
-             'acc/val_acc': self.val_acc, 
-             'learning_rate': self.learning_rate},
+             'acc/val_acc': self.val_acc},
             prog_bar=True,
             logger=True,
         )
@@ -66,8 +71,25 @@ class CPModule(L.LightningModule):
         # y = y.squeeze()
 
         output = self.model(X)
+        # output = torch.sigmoid(output)
+        self.test_loss = F.binary_cross_entropy_with_logits(output, y)
+        # with logits?
 
-        return output
+        y_pred = (output > 0.5).float()
+        self.test_acc = (y_pred == y).float().mean()
+
+        return {
+            'loss': self.test_loss,
+            'acc': self.test_acc
+        }
+    
+    def on_test_epoch_end(self):
+        self.log_dict(
+            {'loss/test_loss': self.test_loss,
+             'acc/test_acc': self.test_acc},
+            prog_bar=True,
+            logger=True,
+        )    
 
     def configure_optimizers(self):
         optimizer = optim.Adam(

@@ -36,10 +36,10 @@ def main(configs):
 
     # preprocessing
     data = data.dropna()
-
     data, _ = convert_object_into_integer(data)
     data = data.astype(np.float32)
     y = data['Churn']
+    data = data.drop(columns=['Churn'])
 
     # train set, valid set split
     X_train, X_temp, y_train, y_temp = train_test_split(
@@ -92,6 +92,10 @@ def main(configs):
     trainer = Trainer(**trainer_args)
 
     trainer.fit(
+        model=cp_module,
+        datamodule=cp_data_module
+    )
+    trainer.test(
         model=cp_module,
         datamodule=cp_data_module
     )
