@@ -15,12 +15,12 @@ class MLP(nn.Module):
         self.relu1 = nn.ReLU()  # ReLU
         self.dropout1 = nn.Dropout(p=self.dropout_ratio)
 
-        self.linear2 = nn.Linear(self.hidden_dim, self.hidden_dim)
+        self.linear2 = nn.Linear(self.hidden_dim, self.hidden_dim*2)
         self.batch_normalization2 = nn.BatchNorm1d(self.hidden_dim)
         self.relu2 = nn.ReLU()
         self.dropout2 = nn.Dropout(p=self.dropout_ratio)
 
-        self.linear3 = nn.Linear(self.hidden_dim, self.hidden_dim)
+        self.linear3 = nn.Linear(self.hidden_dim*2, self.hidden_dim)
         self.batch_normalization3 = nn.BatchNorm1d(self.hidden_dim)
         self.relu3 = nn.ReLU()
         self.dropout3 = nn.Dropout(p=self.dropout_ratio)
