@@ -95,6 +95,7 @@ class CPModule(L.LightningModule):
         optimizer = optim.Adam(
             self.model.parameters(),
             lr=self.learning_rate,
+            weight_decay=1e-4,
         )
         scheduler = optim.lr_scheduler.ReduceLROnPlateau(
             optimizer,
