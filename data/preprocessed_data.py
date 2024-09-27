@@ -19,9 +19,9 @@ def preprocessed_data(df: pd.DataFrame):
     CustomerID 제거\n
     objec형 정수로 변환\n
     """
-    data = data.dropna()
+    data = df.dropna()
     # CustomerID는 학습과 관련이 없어 삭제하고 진행
     data = data.drop(columns='CustomerID')
-    df, _ = convert_object_into_integer(df)
+    data, _ = convert_object_into_integer(data)
 
-    return df
+    return data
