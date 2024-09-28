@@ -46,6 +46,6 @@ class MLP(nn.Module):
         x = self.relu3(x)
         x = self.dropout3(x)
 
-        x = self.output(x)  # 두 번째 선형 변환을 적용하여 최종 출력을 계산합니다.
+        x = self.output(x)
 
-        return x  # 최종 출력을 반환합니다.
+        return x
