@@ -32,7 +32,7 @@ def convert_object_into_integer(df: pd.DataFrame):
 
 def main(configs):
     # load dataset
-    data = pd.read_csv('C:/Users/USER/.vscode/git/practice/data/train.csv')
+    data = pd.read_csv('mlp/data/train.csv')
 
     # preprocessing
     data = data.dropna()
@@ -43,10 +43,10 @@ def main(configs):
 
     # train set, valid set split
     X_train, X_temp, y_train, y_temp = train_test_split(
-        data, y, test_size=0.6, random_state=0, shuffle=True
+        data, y, test_size=0.6, shuffle=True
     )
     X_valid, X_test, y_valid, y_test = train_test_split(
-        X_temp, y_temp, test_size=0.5, random_state=0, shuffle=True
+        X_temp, y_temp, test_size=0.5, shuffle=True
     )
 
     standard_scaler_x = StandardScaler()
@@ -64,7 +64,6 @@ def main(configs):
     cp_data_module.prepare(train_dataset, valid_dataset, test_dataset)
 
     # create model
-    # configs.update({'input_dim'})
     mlp = MLP(configs)
 
     # create LightningModule
@@ -78,7 +77,7 @@ def main(configs):
     trainer_args = {
         'max_epochs': configs.get('epochs'),
         'callbacks': [
-            EarlyStopping(monitor='loss/val_loss', mode='min', patience=10)
+            EarlyStopping(monitor='loss/val_loss', mode='min', patience=10) 
         ],
         'logger': TensorBoardLogger(
             'tensorboard',
@@ -108,7 +107,6 @@ if __name__ == '__main__':
         configs = json.load(file)
     configs.update({'device': device})
 
-    # seed
     seed = 0
     np.random.seed(seed)
     torch.manual_seed(seed)
