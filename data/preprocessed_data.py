@@ -12,16 +12,36 @@ def convert_object_into_integer(df: pd.DataFrame):
     
     return df, label_encoders
 
-def preprocessed_data(df: pd.DataFrame):
+def fillna_median(data: pd.DataFrame):
+    data.AgeHH1 = data.AgeHH1.fillna(data.AgeHH1.median())
+    data.AgeHH2 = data.AgeHH2.fillna(data.AgeHH2.median())
+    data.PercChangeMinutes = data.PercChangeMinutes.fillna(data.PercChangeMinutes.median())
+    data.PercChangeRevenues = data.PercChangeRevenues.fillna(data.PercChangeRevenues.median())
+    data.MonthlyRevenue = data.MonthlyRevenue.fillna(data.MonthlyRevenue.median())
+    data.MonthlyMinutes = data.MonthlyMinutes.fillna(data.MonthlyMinutes.median())
+    data.TotalRecurringCharge = data.TotalRecurringCharge.fillna(data.TotalRecurringCharge.median())
+    data.DirectorAssistedCalls = data.DirectorAssistedCalls.fillna(data.DirectorAssistedCalls.median())
+    data.OverageMinutes = data.OverageMinutes.fillna(data.OverageMinutes.median())
+    data.RoamingCalls = data.RoamingCalls.fillna(data.RoamingCalls.median())
+    data.CurrentEquipmentDays = data.CurrentEquipmentDays.fillna(data.CurrentEquipmentDays.median())
+    data.HandsetModels = data.HandsetModels.fillna(data.HandsetModels.median())
+    data.Handsets = data.Handsets.fillna(data.Handsets.median())
+    return data
+
+def preprocessed_data(df: pd.DataFrame, is_fillna=False, drop_columns=['CustomerID', 'ServiceArea']):
     """
-    ## 데이터 전처리 함수\n
+    ## 데이터 전처리 함수(원본유지)\n
     결측치 처리\n
-    CustomerID 제거\n
+    학습에 불필요한 컬럼 제거\n
     objec형 정수로 변환\n
     """
-    data = df.dropna()
-    # CustomerID는 학습과 관련이 없어 삭제하고 진행
-    data = data.drop(columns='CustomerID')
+    data = df.copy()
+    if not is_fillna:
+        data = data.dropna()
+    else:
+        data = fillna_median(data)
+
+    data = data.drop(columns=drop_columns)
     data, _ = convert_object_into_integer(data)
 
     return data
