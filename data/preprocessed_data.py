@@ -31,9 +31,12 @@ def fillna_median(data: pd.DataFrame):
 def preprocessed_data(df: pd.DataFrame, is_fillna=False, drop_columns=['CustomerID', 'ServiceArea']):
     """
     ## 데이터 전처리 함수(원본유지)\n
-    결측치 처리\n
-    학습에 불필요한 컬럼 제거\n
-    objec형 정수로 변환\n
+    - ### 결측치 처리\n
+        is_fillna=False면 dropna
+        아니면 Median값으로 채움\n
+    - ### 학습에 불필요한 컬럼 제거\n
+        drop_columns
+    - ### objec형 정수로 변환\n
     """
     data = df.copy()
     if not is_fillna:
