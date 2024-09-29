@@ -75,7 +75,7 @@ def main(configs):
     # create LightningModule
     cp_module = CPModule(
         model=mlp,
-        learning_rate = configs.get('learning_rate')
+        configs=configs
     )
 
     # create Trainer instance

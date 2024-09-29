@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import confusion_matrix, classification_report
 import seaborn as sns
 import matplotlib.pyplot as plt
 
@@ -22,16 +22,20 @@ def plot_confusion_matrix(y_true, y_pred):
     plt.title('Confusion Matrix')
     plt.show()
 
+    # Classification report 출력
+    report = classification_report(y_true, y_pred)
+    print(report)
 
 class CPModule(L.LightningModule):
     def __init__(
         self,
         model: nn.Module,
-        learning_rate: float,
+        configs,
     ):
         super().__init__()
         self.model = model
-        self.learning_rate = learning_rate
+        self.configs = configs
+        self.learning_rate = configs.get('learning_rate')
 
         self.val_losses = []
         self.test_losses = []
@@ -88,6 +92,8 @@ class CPModule(L.LightningModule):
         recall = recall_score(self.y_true, self.y_pred, average='macro', zero_division=0)
         f1 = f1_score(self.y_true, self.y_pred, average='macro', zero_division=0)
 
+        val_loss_mean = np.mean(self.val_losses)
+        
         self.log_dict({
             'loss/val_loss': np.mean(self.val_losses),
             'acc/val_acc': self.val_acc,
@@ -131,6 +137,7 @@ class CPModule(L.LightningModule):
         recall = recall_score(self.y_true, self.y_pred, average='macro', zero_division=0)
         f1 = f1_score(self.y_true, self.y_pred, average='macro', zero_division=0)
 
+        test_loss_mean = np.mean(self.test_losses)
         # Test 종료 시점에서만 혼동 행렬 시각화
         plot_confusion_matrix(self.y_true, self.y_pred)
 
