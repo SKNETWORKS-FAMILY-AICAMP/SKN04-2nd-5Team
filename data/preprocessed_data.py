@@ -28,7 +28,19 @@ def fillna_median(data: pd.DataFrame):
     data.Handsets = data.Handsets.fillna(data.Handsets.median())
     return data
 
-def preprocessed_data(df: pd.DataFrame, is_fillna=False, drop_columns=['CustomerID', 'ServiceArea']):
+def convert_continuous_to_categorical(data: pd.DataFrame):
+    data['TotalRecurringCharge_label'] = pd.cut(data.TotalRecurringCharge, 8, labels=range(8)).astype(int)
+    data['MonthsInService_label'] = pd.cut(data.MonthsInService, 6, labels=range(6)).astype(int)
+    data['AgeHH1_label'] = pd.cut(data.AgeHH1, 5, labels=range(5)).astype(int)
+    data['AgeHH2_label'] = pd.cut(data.AgeHH2, 5, labels=range(5)).astype(int)
+    data['MonthlyMinutes_label'] = pd.cut(data.MonthlyMinutes, 10, labels=range(10)).astype(int)
+    data['MonthlyRevenue_label'] = pd.cut(data.MonthlyRevenue, 8, labels=range(8)).astype(int)
+    data['CurrentEquipmentDays_label'] = pd.cut(data.CurrentEquipmentDays, 8, labels=range(8)).astype(int)
+    data['IncomeGroup_label'] = pd.cut(data.IncomeGroup, 8, labels=range(8)).astype(int)
+    data = data.drop(columns=['TotalRecurringCharge', 'MonthsInService', 'AgeHH1', 'AgeHH2', 'MonthlyMinutes', 'MonthlyRevenue', 'CurrentEquipmentDays', 'IncomeGroup'])
+    return data
+
+def preprocessed_data(df: pd.DataFrame, is_fillna=False, drop_columns=['CustomerID', 'ServiceArea'], con_to_cat=False):
     """
     ## 데이터 전처리 함수(원본유지)\n
     - ### 결측치 처리\n
@@ -45,6 +57,8 @@ def preprocessed_data(df: pd.DataFrame, is_fillna=False, drop_columns=['Customer
         data = fillna_median(data)
 
     data = data.drop(columns=drop_columns)
+    if con_to_cat:
+        data = convert_continuous_to_categorical(data)
     data, _ = convert_object_into_integer(data)
 
     return data
