@@ -48,13 +48,15 @@ def create_new_feature_with_clustering(data: pd.DataFrame, n_cluster):
 
 def preprocessed_data(df: pd.DataFrame, is_fillna=False, drop_columns=['CustomerID', 'ServiceArea'], con_to_cat=False, clustering=False):
     """
-    ## 데이터 전처리 함수(원본유지)\n
-    - ### 결측치 처리\n
-        is_fillna=False면 dropna
-        아니면 Median값으로 채움\n
-    - ### 학습에 불필요한 컬럼 제거\n
-        drop_columns
-    - ### objec형 정수로 변환\n
+    데이터 전처리 함수(원본유지)
+
+    Parameters
+    ----------
+        is_fillna : 기본값 False
+            `False`면 dropna실행 `True`면 Median값으로 채움
+        drop_columns : 드랍할 컬럼명 [ ]
+        con_to_cat : 연속형 변수를 범주형으로 바꿈
+        clustering : clustring을 통한 새로운 Feature생성
     """
     data = df.copy()
     if not is_fillna:
