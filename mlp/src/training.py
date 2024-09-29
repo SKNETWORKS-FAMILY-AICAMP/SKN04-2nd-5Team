@@ -2,12 +2,25 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 import numpy as np
 
 import lightning as L
 
 from sklearn.metrics import precision_score, recall_score, f1_score
+
+def plot_confusion_matrix(y_true, y_pred):
+    cm = confusion_matrix(y_true, y_pred)
+    plt.figure(figsize=(6,6))
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', cbar=False)
+    plt.xlabel('Predicted')
+    plt.ylabel('Actual')
+    plt.title('Confusion Matrix')
+    plt.show()
+
 
 class CPModule(L.LightningModule):
     def __init__(
@@ -112,6 +125,9 @@ class CPModule(L.LightningModule):
         precision = precision_score(self.y_true, self.y_pred, average='macro', zero_division=0)
         recall = recall_score(self.y_true, self.y_pred, average='macro', zero_division=0)
         f1 = f1_score(self.y_true, self.y_pred, average='macro', zero_division=0)
+
+        # Test 종료 시점에서만 혼동 행렬 시각화
+        plot_confusion_matrix(self.y_true, self.y_pred)
 
         self.log_dict({
             'loss/test_loss': np.mean(self.test_losses),
