@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import LabelEncoder
+from sklearn.cluster import KMeans
 
 def convert_object_into_integer(df: pd.DataFrame):
     label_encoders = {}
@@ -40,7 +41,12 @@ def convert_continuous_to_categorical(data: pd.DataFrame):
     data = data.drop(columns=['TotalRecurringCharge', 'MonthsInService', 'AgeHH1', 'AgeHH2', 'MonthlyMinutes', 'MonthlyRevenue', 'CurrentEquipmentDays', 'IncomeGroup'])
     return data
 
-def preprocessed_data(df: pd.DataFrame, is_fillna=False, drop_columns=['CustomerID', 'ServiceArea'], con_to_cat=False):
+def create_new_feature_with_clustering(data: pd.DataFrame, n_cluster):
+    kmeans = KMeans(n_clusters=n_cluster, random_state=0).fit(data.drop(columns=['Churn']))
+    data['cluster_group_label'] = kmeans.labels_
+    return data
+
+def preprocessed_data(df: pd.DataFrame, is_fillna=False, drop_columns=['CustomerID', 'ServiceArea'], con_to_cat=False, clustering=False):
     """
     ## 데이터 전처리 함수(원본유지)\n
     - ### 결측치 처리\n
@@ -60,5 +66,7 @@ def preprocessed_data(df: pd.DataFrame, is_fillna=False, drop_columns=['Customer
     if con_to_cat:
         data = convert_continuous_to_categorical(data)
     data, _ = convert_object_into_integer(data)
-
+    if clustering:
+        data = create_new_feature_with_clustering(data, 4)
+    
     return data
