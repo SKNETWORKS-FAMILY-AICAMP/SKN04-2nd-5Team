@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import LabelEncoder, StandardScaler
 from sklearn.cluster import KMeans
 
 def convert_object_into_integer(df: pd.DataFrame):
@@ -42,7 +42,10 @@ def convert_continuous_to_categorical(data: pd.DataFrame):
     return data
 
 def create_new_feature_with_clustering(data: pd.DataFrame, n_cluster):
-    kmeans = KMeans(n_clusters=n_cluster, random_state=0).fit(data.drop(columns=['Churn']))
+    standard_scaler = StandardScaler()
+    scaled_data = data.copy()
+    scaled_data.loc[:, (scaled_data.dtypes==float)] = standard_scaler.fit_transform(scaled_data.loc[:, (scaled_data.dtypes==float)])
+    kmeans = KMeans(n_clusters=n_cluster, random_state=0).fit(scaled_data.drop(columns=['Churn']))
     data['cluster_group_label'] = kmeans.labels_
     return data
 
