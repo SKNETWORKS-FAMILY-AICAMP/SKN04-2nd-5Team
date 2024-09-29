@@ -16,7 +16,7 @@ class MLP(nn.Module):
         self.dropout1 = nn.Dropout(p=self.dropout_ratio)
 
         self.linear2 = nn.Linear(self.hidden_dim, self.hidden_dim*2)
-        self.batch_normalization2 = nn.BatchNorm1d(self.hidden_dim)
+        self.batch_normalization2 = nn.BatchNorm1d(self.hidden_dim*2)
         self.relu2 = nn.ReLU()
         self.dropout2 = nn.Dropout(p=self.dropout_ratio)
 

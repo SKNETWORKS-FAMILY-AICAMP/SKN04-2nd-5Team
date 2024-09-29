@@ -6,6 +6,7 @@ from sklearn.metrics import confusion_matrix
 import seaborn as sns
 import matplotlib.pyplot as plt
 
+import nni
 import numpy as np
 
 import lightning as L
@@ -99,6 +100,10 @@ class CPModule(L.LightningModule):
             prog_bar=True,
             logger=True,
         )
+        # NNI 중간 결과 보고
+        if hasattr(self, 'configs') and self.configs.get('nni'):
+            nni.report_intermediate_result(val_loss_mean)  # 중간 결과로 validation loss를 보고
+
 
     def test_step(self, batch, batch_idx):
         if batch_idx == 0:
@@ -141,6 +146,9 @@ class CPModule(L.LightningModule):
             prog_bar=True,
             logger=True,
         )    
+        # NNI 최종 결과 보고
+        if hasattr(self, 'configs') and self.configs.get('nni'):
+            nni.report_final_result(test_loss_mean)  # 최종 결과로 test loss를 보고
 
     def configure_optimizers(self):
         optimizer = optim.Adam(

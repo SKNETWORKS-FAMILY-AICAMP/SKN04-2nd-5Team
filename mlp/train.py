@@ -7,6 +7,7 @@ import pandas as pd
 import numpy as np
 import json
 
+import nni
 import torch
 import torch.nn as nn
 
@@ -32,7 +33,12 @@ def convert_object_into_integer(df: pd.DataFrame):
 
 def main(configs):
     # load dataset
-    data = pd.read_csv('mlp/data/train.csv')
+    data = pd.read_csv('/Users/macbook/Desktop/AI_edu/SKN04-2nd-5Team/mlp/data/train.csv')
+
+    # NNI 하이퍼파라미터 업데이트
+    if configs.get('nni'):
+        nni_params = nni.get_next_parameter()
+        configs.update(nni_params)
 
     # preprocessing
     data = data.dropna()
@@ -98,19 +104,26 @@ def main(configs):
         model=cp_module,
         datamodule=cp_data_module
     )
+    # NNI 최종 결과 보고
+    if configs.get('nni'):
+        nni.report_final_result(np.mean(cp_module.test_losses))
 
 if __name__ == '__main__':
 
     device = 'gpu' if torch.cuda.is_available() else 'cpu'
 
-    with open('C:/Users/USER/.vscode/git/practice/mlp/configs.json', 'r') as file:
+    with open('/Users/macbook/Desktop/AI_edu/SKN04-2nd-5Team/mlp/configs.json', 'r') as file:
         configs = json.load(file)
     configs.update({'device': device})
+
+    if configs.get('nni'):
+        nni_params = nni.get_next_parameter()
+        configs.update(nni_params)
 
     seed = 0
     np.random.seed(seed)
     torch.manual_seed(seed)
-    if device == 'cuda':
+    if device == 'gpu':
         torch.cuda.manual_seed(seed)
         torch.cuda.manual_seed_all(seed)
         torch.backends.cudnn.deterministic = False

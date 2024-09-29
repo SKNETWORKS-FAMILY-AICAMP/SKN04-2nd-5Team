@@ -1,4 +1,5 @@
 {
+    "nni": true,
     "seed": 0,
     "batch_size": 256,       
     "epochs": 100,           
