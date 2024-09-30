@@ -2,6 +2,10 @@ from src.data import CPDataset, CPDataModule
 from src.model.mlp import MLP
 from src.training import CPModule
 # from src.utils import convert_object_into_integer
+import sys, os
+
+sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
+from data.preprocessed_data import preprocessed_data
 
 import pandas as pd
 import numpy as np
@@ -36,11 +40,13 @@ def main(configs):
 
     data = pd.read_csv('./data/train.csv')
     # preprocessing
-    data = data.dropna()
-    data, _ = convert_object_into_integer(data)
-    data = data.astype(np.float32)
+    data = preprocessed_data(data, True)
+    # data = data.dropna()
+    # data, _ = convert_object_into_integer(data)
+    # data = data.astype(np.float32)
     y = data['Churn']
-    data = data.drop(columns=['Churn', 'CustomerID'])
+    data = data.drop(columns=['Churn'])
+    # data = data.drop(columns=['Churn', 'CustomerID'])
 
     # train set, valid set split
     X_train, X_temp, y_train, y_temp = train_test_split(
@@ -64,6 +70,7 @@ def main(configs):
     cp_data_module = CPDataModule(batch_size=configs.get('batch_size'))
     cp_data_module.prepare(train_dataset, valid_dataset, test_dataset)
 
+    configs.update({'input_dim': len(data.columns)})
     # create model
     mlp = MLP(configs)
 
@@ -99,9 +106,9 @@ def main(configs):
         model=cp_module,
         datamodule=cp_data_module
     )
-    # NNI 최종 결과 보고
-    if configs.get('nni'):
-        nni.report_final_result(np.mean(cp_module.test_losses))
+    # # NNI 최종 결과 보고
+    # if configs.get('nni'):
+    #     nni.report_final_result(np.mean(cp_module.test_losses))
     
 if __name__ == '__main__':
 
