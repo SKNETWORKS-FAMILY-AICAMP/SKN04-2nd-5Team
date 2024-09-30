@@ -8,13 +8,6 @@
  
 ### 🤭 팀원
 
-<p align="center">
-	<img src="./classdom/image/min.jpg" width="200" height="200"/>
-	<img src="./classdom/image/seung.jpg" width="200" height="200"/>
-	<img src="./classdom/image/su.jpg" width="200" height="200"/>
-	<img src="./classdom/image/hye.jpg" width="200" height="200"/>
-	<img src="./classdom/image/hye.jpg" width="200" height="200"/>
-</p>
 
 <div align="center">
 	
@@ -48,16 +41,22 @@
 **이 프로젝트를 실행하기 위해 필요한 패키지 등을 정의**
 
 ```cmd
-pip install -r requirements.txt
+pip install numpy
+pip install pandas
+pip install 
 ```
 
 <hr>
 
 ### Usage
-**이 코드를 실행하기 위해 어떠한 코드를 어떻게 실행해야 하는지 작성**
 
+- Machine Learning
 ```cmd
-python main.py
+python ./ML/ml.py
+```
+- Deep Learning
+```cmd
+python train.py
 ```
 
 <hr> 
@@ -76,7 +75,7 @@ python main.py
 **4. 2번 데이터에 클러스터링을 통한 라벨 feature를 추가합니다.**
 <br>
 
-| ![data.png](attachment:data.png) | ![image-2.png](attachment:image-2.png) |
+|![data](https://github.com/user-attachments/assets/f4924aeb-f8cd-4873-804e-35abd535c010)|![data2](https://github.com/user-attachments/assets/997d3b34-db4d-4b90-824f-ac31b70cedb7)|
 |----------------------------------|----------------------------------------|
 
 <br>
@@ -86,12 +85,13 @@ python main.py
 ### EDA
 
 #### 1. Churn에 따른 시각화
-![타겟에 따른 시각화.png](<attachment:타겟에 따른 시각화.png>)
+![타겟에 따른 시각화](https://github.com/user-attachments/assets/2e3d1aa8-d56b-44bb-a922-83e3b28da42a)
 
 #### 2. XGBoost Feature Importance에 따른 feature 시각화
 - recall이 가장 높은 데이터의 Feature Importance에 따라 상위 3개에 대한 시각화<br>
 <br>
-![xgboost feature importance 기준 상위 3개 시각화.png](<attachment:xgboost feature importance 기준 상위 3개 시각화.png>)
+
+![xgboost feature importance 기준 상위 3개 시각화](https://github.com/user-attachments/assets/627f2f01-a3e0-4b1e-ad50-a56f4682dccf)
 <br>
 <br>
 - countplot과 kdeplot을 보았을 때 개별 feature에 대한 Churn의 Yes의 개수가 No보다 많은 것이 없으며, 비율도 동일한 비율만 존재하여 1번의 데이터로는 Churn의 Yes, No를 구분할 방법이 없는 것으로 판단됩니다.
@@ -101,31 +101,59 @@ python main.py
 **3-1. 연속형 데이터를 범주형 데이터로 생성**<br>
 <br>
 
-![스크린샷 2024-09-30 103817.png](<attachment:스크린샷 2024-09-30 103817.png>)
+![스크린샷 2024-09-30 103817](https://github.com/user-attachments/assets/4533206a-b206-43e1-8a62-50566bd6111f)
 
 **3-2. Clustering을 통한 새로운 label 생성**<br>
 - KMeans 활용<br>
 <br>
 
-![image.png](attachment:image.png)
+![연속에서 범주형 데이터로 변환](https://github.com/user-attachments/assets/511b0819-a5a5-434b-962f-1b58a83c1f80)
 
 #### 4. Type 변경
 - 3번에서 2가지 방법으로 새로운 feature을 생성하였지만 EDA상 유의미한 정보를 찾지 못하여 실행합니다.<br>
 <br>
 
-![imshow_type 변경.png](<attachment:imshow_type 변경.png>)
+![imshow_type 변경](https://github.com/user-attachments/assets/c4874927-58b2-4fa3-bf98-93b9faa04ae4)
 
 - Heatmap을 통하여 Churn과 다른 feature들간에 유의미한 상관관계는 보이지 않습니다.
 <br>
+
+#### 5. 소거법
+
+**5-1. 기존 Feature 제거를 통한 데이터 혼잡성 개선 시도** <br>
 <br>
-> Churn과 feature간의 유의미한 관계가 있는 데이터는 없다고 판단됩니다. <br>
-> 따라서 기본적인 model을 실행했을 때의 예상되는 Score은 둘의 비율인 0.71에 근접하는 결과가 나올 것 같습니다.<br>
-> target의 데이터가 불균일하기 때문에 accuracy보다 precision과 recall의 결과에 대하여 주의해야할 것 같습니다.
+유사성 있는 데이터 소거: Service Area/Prizm Code, Occupation/CreditRating/Incomegroup 등 유사성있는 데이터,<br>
+혹은 Churn User Demographic 분석에 중요도 떨어지는 데이터 제거하였습니다.<br>
+"TotalRecurringCharge, MonthsInService, AgeHH1, AgeHH2, MonthlyMinutes, MonthlyRevenue, CurrentEquipmentDays, Incomegroup"<br>
+Upper, lowerquartile 제거하여 데이터 개선 여지 체크합니다.<br>
+
+<br>
+- Churn과 feature간의 유의미한 관계가 있는 데이터는 없다고 판단됩니다. <br>
+따라서 기본적인 model을 실행했을 때의 예상되는 Score은 둘의 비율인 0.71에 근접하는 결과가 나올 것 같습니다.<br>
+target의 데이터가 불균일하기 때문에 accuracy보다 precision과 recall의 결과에 대하여 주의해야할 것 같습니다.
 
 <hr>
 
 ### Modeling
 
+#### Machine Learning
+
+- 데이터 전처리 후 분류 task에 적합하고 accuracy를 잘 나오는 모델을 선택하였습니다.
+
+#### Deep Learning
+
+- 모델 선정 기준: 시계열 관련 데이터가 없어 RNN, LSTM 제외, 그 외에도 데이터가 복잡하지 않아(이미지, 영상 등이 아니므로) MLP 선정했습니다.
+
+- 문제 및 해결방안:
+    - 정확도는 잘 나왔으나 loss수치가 0.58로 높았습니다. <br>
+    1. batch_size, learning_rate, hidden_dim, dropout_ratio 등 수동으로 parameter를 조정했습니다. <br>
+    1-1. layer수를 2개에서 3개로 늘렸습니다. <br>
+    1-2. Optimizer Adam에서 AdamW로 변경하였으나 유의미한 차이가 없었습니다.<br>
+    <br>
+    2. recall이 1.0이라는 수치가 나오는 현상이 발생했습니다.<br>
+    2-1. output_dim을 1에서 2로 늘리고 softmax()를 사용하였으며, 손실함수를ㄹ BCE에서 CE로 변경했습니다.<br>
+    <br>
+    3. nni를 통한 parameter tuning에서 문제가 있었습니다.
 
 <hr>
 
@@ -136,40 +164,67 @@ python main.py
 **XGBoost**
 **1. 모델 평가 결과** <br>
 
-| ![xgboost_평가_fold4.png](attachment:xgboost_평가_fold4.png) | ![xgboost_평가_fold5.png](attachment:xgboost_평가_fold5.png) |
-|-----------------------|-----------------------|
+![xgboost_result1](https://github.com/user-attachments/assets/b6b2a3d4-b631-4e9b-b6cb-11237f5139ae)
 
 **2. Feature Importance** <br>
 - recall이 가장 높은 데이터의 feature importance를 확인합니다. <br>
 - 위의 과정을 거친 후에 중요도가 낮은 feature부터 하나씩 제거하면서 비교합니다. <br>
 
-| ![xgboost_drop_1.png](attachment:xgboost_drop_1.png) | ![xgboost_drop_2.png](attachment:xgboost_drop_2.png) | ![xgboost_drop_3.png](attachment:xgboost_drop_3.png) |
+|![xgboost_feature_drop1](https://github.com/user-attachments/assets/f72f8914-defa-4a03-b831-5395fe253233)|![xgboost_feature_drop5](https://github.com/user-attachments/assets/c305ee92-23ae-4764-8d06-872a9c05bf16)|![xgboost_feature_drop20](https://github.com/user-attachments/assets/709448ff-5dc8-4194-adbf-bd91315e1414)|
 |-----------------------|-----------------------|-----------------------|
+
+<br>
+<br>
 
 **LightGBM**
+<br>
 **1. 모델 평가 결과** <br>
 
-| ![lgbm_result_1.png](attachment:lgbm_result_1.png) | ![lgbm_result_2.png](attachment:lgbm_result_2.png) | ![lgbm_result_3.png](attachment:lgbm_result_3.png) |
-|-----------------------|-----------------------|-----------------------|
+![lightgbm_result](https://github.com/user-attachments/assets/dccef868-f87f-41bc-acb1-a9b684a1281b)
 
 **2. Feature Importance** <br>
 - recall이 가장 높은 데이터의 feature importance를 확인합니다. <br>
 - 위의 과정을 거친 후에 중요도가 낮은 feature부터 하나씩 제거하면서 비교합니다. <br>
 
-| ![lgbm_drop_1.png](attachment:lgbm_drop_1.png) | ![lgbm_drop_10.png](attachment:lgbm_drop_10.png) | ![lgbm_drop_20.png](attachment:lgbm_drop_20.png) |
+|![lgbm_drop1](https://github.com/user-attachments/assets/5b32d1c6-494d-44b4-a198-9fc8e19d5cac)|![lgbm_drop5](https://github.com/user-attachments/assets/bb091f7e-ea7c-4d65-acca-6e7947e8f5de)|![lgbm_drop20](https://github.com/user-attachments/assets/c7ef9523-10d1-4ab7-828e-3d0e5dca982c)|
 |-----------------------|-----------------------|-----------------------|
 
--lgbm 기본 vs importance 낮은 것들 drop하면서 실행했을 때 -> recall이 변화가 없음 유의미한
-- 
+> XGBoost와 LGBM의 각각 기존 데이터로 모델을 실행하였을 때 recall값에서 유의미한 변화가 없다는 것을 확인할 수 있습니다.
 
-> XGBoost와 LGBM의 각각 기존 
+<br>
 
 #### Deep Learning
 
+**Test Dataloader**
+![DL_result](https://github.com/user-attachments/assets/d10430e6-ec61-4eec-a59d-acbe61141bf9)
+<br>
+
+**nni 결과**
+
+![nni_result](https://github.com/user-attachments/assets/4202742b-1504-4e49-baa3-03993b899b9e)
+
+> 머신러닝에서 XGBoost를 사용하여 정확도가 72% 정도가 나왔으며, <br>
+> 딥러닝에서 MLP를 사용하여 정확도가 71% 정도가 나왔습니다.
+
+
+### 팀원 별 역할
 
 
 <hr>
 
 ### 한 줄 회고
-
-***회고 작성***
+```
+박진효 - 고생 많이 한 팀원들 감사합니다. 부족한 팀장이라 미안합니다.
+```
+```
+고유림 - 어려웠습니다. 한발짝 좀 더 나가아갔던 시간이었습니다.
+```
+```
+이진섭 - 환경 설정에서 여러 이슈를 겪으며 해결하는 데 많은 애를 먹었지만, 앞으로는 더 신중하게 설정해야겠다.
+```
+```
+이호재 - 다들 고생하셨고 주말이껴서 더 힘든 느낌이 드네요.
+```
+```
+전욱진 -
+```
