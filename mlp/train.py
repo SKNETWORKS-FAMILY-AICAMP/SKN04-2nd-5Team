@@ -41,12 +41,8 @@ def main(configs):
     data = pd.read_csv('./data/train.csv')
     # preprocessing
     data = preprocessed_data(data, True)
-    # data = data.dropna()
-    # data, _ = convert_object_into_integer(data)
-    # data = data.astype(np.float32)
     y = data['Churn']
     data = data.drop(columns=['Churn'])
-    # data = data.drop(columns=['Churn', 'CustomerID'])
 
     # train set, valid set split
     X_train, X_temp, y_train, y_temp = train_test_split(
@@ -106,10 +102,7 @@ def main(configs):
         model=cp_module,
         datamodule=cp_data_module
     )
-    # # NNI 최종 결과 보고
-    # if configs.get('nni'):
-    #     nni.report_final_result(np.mean(cp_module.test_losses))
-    
+
 if __name__ == '__main__':
 
     device = 'gpu' if torch.cuda.is_available() else 'cpu'
