@@ -33,14 +33,14 @@ def convert_object_into_integer(df: pd.DataFrame):
 
 def main(configs):
     # load dataset
-    data = pd.read_csv('./data/train.csv')
 
+    data = pd.read_csv('./data/train.csv')
     # preprocessing
     data = data.dropna()
     data, _ = convert_object_into_integer(data)
     data = data.astype(np.float32)
     y = data['Churn']
-    data = data.drop(columns=['Churn'])
+    data = data.drop(columns=['Churn', 'CustomerID'])
 
     # train set, valid set split
     X_train, X_temp, y_train, y_temp = train_test_split(
