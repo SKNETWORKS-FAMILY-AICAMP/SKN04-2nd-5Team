@@ -14,7 +14,7 @@ import nni
 import torch
 import torch.nn as nn
 
-from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 
 import lightning as L

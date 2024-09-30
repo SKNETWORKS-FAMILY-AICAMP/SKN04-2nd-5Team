@@ -1,6 +1,8 @@
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
-
+import seaborn as sns
+from sklearn.metrics import confusion_matrix, classification_report
+import matplotlib.pyplot as plt
 
 def convert_category_into_integer(df: pd.DataFrame, columns: list):
     """
@@ -28,3 +30,15 @@ def convert_category_into_integer(df: pd.DataFrame, columns: list):
     
     # 변환된 데이터프레임과 LabelEncoder 객체를 포함하는 딕셔너리를 반환합니다.
     return df, label_encoders
+
+def plot_confusion_matrix(y_true, y_pred):
+    cm = confusion_matrix(y_true, y_pred)
+    plt.figure(figsize=(6,6))
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', cbar=False)
+    plt.xlabel('Predicted')
+    plt.ylabel('Actual')
+    plt.title('Confusion Matrix')
+    plt.show()
+
+    # Classification report 출력
+    print(classification_report(y_true, y_pred))

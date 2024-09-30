@@ -2,28 +2,14 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
-from sklearn.metrics import confusion_matrix, classification_report
-import seaborn as sns
-import matplotlib.pyplot as plt
-
 import nni
 import numpy as np
 
 import lightning as L
 
+from src.utils import plot_confusion_matrix
 from sklearn.metrics import precision_score, recall_score, f1_score
 
-def plot_confusion_matrix(y_true, y_pred):
-    cm = confusion_matrix(y_true, y_pred)
-    plt.figure(figsize=(6,6))
-    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', cbar=False)
-    plt.xlabel('Predicted')
-    plt.ylabel('Actual')
-    plt.title('Confusion Matrix')
-    plt.show()
-
-    # Classification report 출력
-    print(classification_report(y_true, y_pred))
 
 class CPModule(L.LightningModule):
     def __init__(
