@@ -48,9 +48,10 @@ class CPModule(L.LightningModule):
         y = batch.get('y')
 
         output = self.model(X)
-        self.loss = F.binary_cross_entropy_with_logits(output, y)  # calculate loss
+        logit = F.softmax(output, dim=-1)
+        self.loss = F.cross_entropy(logit, y)  # calculate loss
 
-        y_pred = (output > 0.5).float()
+        y_pred = logit.argmax(axis=-1)
         self.acc = (y_pred == y).float().mean()
 
         return self.loss
@@ -58,8 +59,7 @@ class CPModule(L.LightningModule):
     def on_train_epoch_end(self, *args, **kwargs):
         self.log_dict({
             'loss/train_loss': self.loss,
-            'acc/train_acc': self.acc,
-            'learning_rate': self.learning_rate
+            'acc/train_acc': self.acc
             },
             on_epoch=True,
             prog_bar=True,
@@ -76,10 +76,11 @@ class CPModule(L.LightningModule):
         y = batch.get('y')
 
         output = self.model(X)
-        self.val_loss = F.binary_cross_entropy_with_logits(output, y)
-        self.val_losses.append(self.val_loss)
+        logit = F.softmax(output, dim=-1)
+        self.val_loss = F.cross_entropy(logit, y)  # calculate loss
 
-        y_pred = (output > 0.5).float()
+        y_pred = logit.argmax(axis=-1)
+        self.val_losses.append(self.val_loss)
         self.val_acc = (y_pred == y).float().mean()
 
         self.y_true.extend(y)
@@ -95,12 +96,12 @@ class CPModule(L.LightningModule):
         val_loss_mean = np.mean(self.val_losses)
         
         self.log_dict({
-            'loss/val_loss': np.mean(self.val_losses),
+            'loss/val_loss':self.val_loss,
             'acc/val_acc': self.val_acc,
             'val_precision': precision,
             'val_recall': recall,
             'val_f1': f1,
-            'learning_rate': self.learning_rate
+            'learning_rate': self.optimizers().param_groups[0].get('lr')
             },
             on_epoch=True,
             prog_bar=True,
@@ -121,16 +122,17 @@ class CPModule(L.LightningModule):
         y = batch.get('y')
 
         output = self.model(X)
-        self.test_loss = F.binary_cross_entropy_with_logits(output, y)
+        logit = F.softmax(output, dim=-1)
+        self.test_loss = F.cross_entropy(logit, y) 
         self.test_losses.append(self.test_loss)
-
-        y_pred = (output > 0.5).float()
+        y_pred = logit.argmax(axis=-1)
+        
         self.test_acc = (y_pred == y).float().mean()
 
         self.y_true.extend(y)
         self.y_pred.extend(y_pred)
 
-        return self.test_loss
+        return logit
     
     def on_test_epoch_end(self):
         precision = precision_score(self.y_true, self.y_pred, average='macro', zero_division=0)
@@ -139,20 +141,8 @@ class CPModule(L.LightningModule):
 
         test_loss_mean = np.mean(self.test_losses)
         # Test 종료 시점에서만 혼동 행렬 시각화
-        plot_confusion_matrix(self.y_true, self.y_pred)
-
-        self.log_dict({
-            'loss/test_loss': np.mean(self.test_losses),
-            'acc/test_acc': self.test_acc,
-            'test_precision': precision,
-            'test_recall': recall,
-            'test_f1': f1,            
-            'learning_rate': self.learning_rate
-            },
-            on_epoch=True,
-            prog_bar=True,
-            logger=True,
-        )    
+        # plot_confusion_matrix(self.y_true, self.y_pred)
+        print(classification_report(self.y_true, self.y_pred))
         # NNI 최종 결과 보고
         if hasattr(self, 'configs') and self.configs.get('nni'):
             nni.report_final_result(test_loss_mean)  # 최종 결과로 test loss를 보고
@@ -171,11 +161,6 @@ class CPModule(L.LightningModule):
         )
 
         return {
-            'optimizer': optimizer,
-            'lr_scheduler': {
-                'scheduler': scheduler,
-                'monitor': 'loss/val_loss',
-                'interval': 'epoch',
-                'frequency': 1
-            }
+            'optimizer': optimizer,   # 옵티마이저 반환
+            'scheduler': scheduler,   # 학습률 스케줄러 반환
         }
