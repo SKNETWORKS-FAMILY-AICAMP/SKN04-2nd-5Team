@@ -38,6 +38,7 @@ def main(configs):
     # NNI 하이퍼파라미터 업데이트
     if configs.get('nni'):
         nni_params = nni.get_next_parameter()
+        # print(f"NNI parameters: {nni_params}")  # 디버깅 출력
         configs.update(nni_params)
 
     # preprocessing
@@ -45,7 +46,7 @@ def main(configs):
     data, _ = convert_object_into_integer(data)
     data = data.astype(np.float32)
     y = data['Churn']
-    data = data.drop(columns=['Churn'])
+    data = data.drop(columns=['Churn', 'CustomerID'])
 
     # train set, valid set split
     X_train, X_temp, y_train, y_temp = train_test_split(
