@@ -27,7 +27,7 @@ def main(configs):
     # load dataset
     data = pd.read_csv('./data/train.csv')
     # preprocessing
-    data = preprocessed_data(data, True)
+    data = preprocessed_data(data)
     y = data['Churn']
     data = data.drop(columns=['Churn'])
 
