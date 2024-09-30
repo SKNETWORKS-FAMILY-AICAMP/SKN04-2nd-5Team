@@ -23,8 +23,7 @@ def plot_confusion_matrix(y_true, y_pred):
     plt.show()
 
     # Classification report 출력
-    report = classification_report(y_true, y_pred)
-    print(report)
+    print(classification_report(y_true, y_pred))
 
 class CPModule(L.LightningModule):
     def __init__(
@@ -141,8 +140,7 @@ class CPModule(L.LightningModule):
 
         test_loss_mean = np.mean(self.test_losses)
         # Test 종료 시점에서만 혼동 행렬 시각화
-        # plot_confusion_matrix(self.y_true, self.y_pred)
-        print(classification_report(self.y_true, self.y_pred))
+        plot_confusion_matrix(self.y_true, self.y_pred)
         # NNI 최종 결과 보고
         if hasattr(self, 'configs') and self.configs.get('nni'):
             nni.report_final_result(test_loss_mean)  # 최종 결과로 test loss를 보고
