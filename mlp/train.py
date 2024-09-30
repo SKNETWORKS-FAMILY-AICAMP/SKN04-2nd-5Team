@@ -1,7 +1,6 @@
 from src.data import CPDataset, CPDataModule
 from src.model.mlp import MLP
 from src.training import CPModule
-# from src.utils import convert_object_into_integer
 import sys, os
 
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
@@ -24,20 +23,8 @@ from lightning.pytorch.callbacks.early_stopping import EarlyStopping
 from lightning.pytorch.loggers import TensorBoardLogger
 
 
-def convert_object_into_integer(df: pd.DataFrame):
-    label_encoders = {}
-    for column in df.columns:
-        if df.dtypes[column] == object:
-            label_encoder = LabelEncoder()
-            df[column] = label_encoder.fit_transform(df[column])
-            label_encoders.update({column: label_encoder})
-    
-    return df, label_encoders
-
-
 def main(configs):
     # load dataset
-
     data = pd.read_csv('./data/train.csv')
     # preprocessing
     data = preprocessed_data(data, True)
@@ -77,7 +64,6 @@ def main(configs):
     )
 
     # create Trainer instance
-    # exp_name = ','.join([f'{key}={value}' for key, value in configs.items()])
     trainer_args = {
         'max_epochs': configs.get('epochs'),
         'callbacks': [
