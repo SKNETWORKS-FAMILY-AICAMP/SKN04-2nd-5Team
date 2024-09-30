@@ -1,0 +1,29 @@
+search_space:
+  batch_size:
+    _type: choice
+    _value: [128, 256, 512, 1024]
+  learning_rate:
+    _type: uniform
+    _value: [0.0001, 0.01]  # 적절한 범위
+  hidden_dim:
+    _type: randint
+    _value: [64, 256]  # Layer의 hidden dimension
+  dropout_ratio:
+    _type: uniform
+    _value: [0.1, 0.5]  # 드롭아웃 비율
+
+trial_command: python train.py  # 학습 명령어
+trial_code_directory: .  # 코드 위치
+
+trial_concurrency: 8  # 동시에 실행할 실험 수
+max_trial_number: 256  # 최대 실행 실험 수
+
+tuner:
+  name: TPE  # TPE 방식의 하이퍼파라미터 최적화
+  class_args:
+    optimize_mode: minimize  # 손실을 최소화하는 방향으로 최적화
+
+training_service:
+  platform: local  # 로컬 환경에서 실행
+
+debug: true  # 디버그 모드 활성화
