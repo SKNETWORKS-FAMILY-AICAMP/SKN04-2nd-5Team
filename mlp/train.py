@@ -1,7 +1,10 @@
 from src.data import CPDataset, CPDataModule
 from src.model.mlp import MLP
 from src.training import CPModule
-# from src.utils import convert_object_into_integer
+import sys, os
+
+sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
+from data.preprocessed_data import preprocessed_data
 
 import pandas as pd
 import numpy as np
@@ -11,7 +14,7 @@ import nni
 import torch
 import torch.nn as nn
 
-from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 
 import lightning as L
@@ -20,27 +23,13 @@ from lightning.pytorch.callbacks.early_stopping import EarlyStopping
 from lightning.pytorch.loggers import TensorBoardLogger
 
 
-def convert_object_into_integer(df: pd.DataFrame):
-    label_encoders = {}
-    for column in df.columns:
-        if df.dtypes[column] == object:
-            label_encoder = LabelEncoder()
-            df[column] = label_encoder.fit_transform(df[column])
-            label_encoders.update({column: label_encoder})
-    
-    return df, label_encoders
-
-
 def main(configs):
     # load dataset
-
     data = pd.read_csv('./data/train.csv')
     # preprocessing
-    data = data.dropna()
-    data, _ = convert_object_into_integer(data)
-    data = data.astype(np.float32)
+    data = preprocessed_data(data)
     y = data['Churn']
-    data = data.drop(columns=['Churn', 'CustomerID'])
+    data = data.drop(columns=['Churn'])
 
     # train set, valid set split
     X_train, X_temp, y_train, y_temp = train_test_split(
@@ -64,6 +53,7 @@ def main(configs):
     cp_data_module = CPDataModule(batch_size=configs.get('batch_size'))
     cp_data_module.prepare(train_dataset, valid_dataset, test_dataset)
 
+    configs.update({'input_dim': len(data.columns)})
     # create model
     mlp = MLP(configs)
 
@@ -74,7 +64,6 @@ def main(configs):
     )
 
     # create Trainer instance
-    # exp_name = ','.join([f'{key}={value}' for key, value in configs.items()])
     trainer_args = {
         'max_epochs': configs.get('epochs'),
         'callbacks': [
@@ -99,10 +88,7 @@ def main(configs):
         model=cp_module,
         datamodule=cp_data_module
     )
-    # NNI 최종 결과 보고
-    if configs.get('nni'):
-        nni.report_final_result(np.mean(cp_module.test_losses))
-    
+
 if __name__ == '__main__':
 
     device = 'gpu' if torch.cuda.is_available() else 'cpu'
