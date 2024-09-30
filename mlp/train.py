@@ -33,12 +33,7 @@ def convert_object_into_integer(df: pd.DataFrame):
 
 def main(configs):
     # load dataset
-    data = pd.read_csv('/Users/macbook/Desktop/AI_edu/SKN04-2nd-5Team/mlp/data/train.csv')
-
-    # NNI 하이퍼파라미터 업데이트
-    if configs.get('nni'):
-        nni_params = nni.get_next_parameter()
-        configs.update(nni_params)
+    data = pd.read_csv('./data/train.csv')
 
     # preprocessing
     data = data.dropna()
@@ -49,7 +44,7 @@ def main(configs):
 
     # train set, valid set split
     X_train, X_temp, y_train, y_temp = train_test_split(
-        data, y, test_size=0.6, shuffle=True
+        data, y, test_size=0.4, shuffle=True
     )
     X_valid, X_test, y_valid, y_test = train_test_split(
         X_temp, y_temp, test_size=0.5, shuffle=True
@@ -79,7 +74,7 @@ def main(configs):
     )
 
     # create Trainer instance
-    exp_name = ','.join([f'{key}={value}' for key, value in configs.items()])
+    # exp_name = ','.join([f'{key}={value}' for key, value in configs.items()])
     trainer_args = {
         'max_epochs': configs.get('epochs'),
         'callbacks': [
@@ -87,7 +82,7 @@ def main(configs):
         ],
         'logger': TensorBoardLogger(
             'tensorboard',
-            f'cp/{exp_name}',
+            f'cp/test',
         ),        
     }
 
@@ -107,12 +102,12 @@ def main(configs):
     # NNI 최종 결과 보고
     if configs.get('nni'):
         nni.report_final_result(np.mean(cp_module.test_losses))
-
+    
 if __name__ == '__main__':
 
     device = 'gpu' if torch.cuda.is_available() else 'cpu'
 
-    with open('/Users/macbook/Desktop/AI_edu/SKN04-2nd-5Team/mlp/configs.json', 'r') as file:
+    with open('./configs.json', 'r') as file:
         configs = json.load(file)
     configs.update({'device': device})
 
