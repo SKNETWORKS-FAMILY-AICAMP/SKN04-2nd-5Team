@@ -1,7 +1,6 @@
 # SKN04-2nd-5Team
 # 👑Class Dom👑
-<p align="center"><img src="./classdom/image/classdom.jpg" width="1000" height="300"/></p>
-
+![image](https://github.com/user-attachments/assets/bb4a3ceb-390b-40ee-a164-4fd571997396)
 <hr>
 
 ### 🤗 팀명 : 골골대조
@@ -12,8 +11,8 @@
 <div align="center">
 	
 |&nbsp;&nbsp; &nbsp; &nbsp; &nbsp;  &nbsp;  &nbsp; 🐶 박진효  &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;  &nbsp;  &nbsp;|&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;  &nbsp;  &nbsp; 🐱 고유림  &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;  &nbsp;  &nbsp; |&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;  &nbsp;  &nbsp; 🐹 이진섭  &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;  &nbsp;  &nbsp; |  &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;  &nbsp;  &nbsp; 🐰 이호재  &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;  &nbsp;  &nbsp;|&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;  &nbsp;  &nbsp; 🐱 전욱진  &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;  &nbsp;  &nbsp; |
-| DL | ML | DL | ML | EDA |
 |------------------------------------------|--------------------------------------|------------------------------------------|-----------------------------------|--------------------------------------|
+| DL(모델구현) | ML(stackimg), README | DL(parameter tuning,<br> 세부코드작성) | ML(XGBoost, LightGBM) | EDA |
  
 </div>
 
@@ -38,18 +37,21 @@
 
 <hr>
 
-### Prerequisites
+### 💻 Prerequisites
 **이 프로젝트를 실행하기 위해 필요한 패키지 등을 정의**
 
 ```cmd
 pip install numpy
 pip install pandas
-pip install 
+pip install scikit-learn
+pip install lightning
+pip install ipykernel
+pip install pytorch
 ```
 
 <hr>
 
-### Usage
+### 💻 Usage
 
 - Machine Learning
 ```cmd
@@ -123,15 +125,17 @@ python train.py
 
 **5-1. 기존 Feature 제거를 통한 데이터 혼잡성 개선 시도** <br>
 <br>
-유사성 있는 데이터 소거: Service Area/Prizm Code, Occupation/CreditRating/Incomegroup 등 유사성있는 데이터,<br>
-혹은 Churn User Demographic 분석에 중요도 떨어지는 데이터 제거하였습니다.<br>
-"TotalRecurringCharge, MonthsInService, AgeHH1, AgeHH2, MonthlyMinutes, MonthlyRevenue, CurrentEquipmentDays, Incomegroup"<br>
-Upper, lowerquartile 제거하여 데이터 개선 여지 체크합니다.<br>
+- 유사성 있는 데이터 소거합니다
+	- Service Area / Prizm Code, Occupation / CreditRating / Incomegroup 등 유사성 있는 데이터
+- 혹은 Churn User Demographic 분석에 중요도 떨어지는 데이터 제거하였습니다.<br>
+	- "TotalRecurringCharge, MonthsInService, AgeHH1, AgeHH2, MonthlyMinutes, MonthlyRevenue, CurrentEquipmentDays, Incomegroup" <br>
+	   Upper, lowerquartile 제거하여 데이터 개선 여지 체크합니다.<br>
 
 <br>
-- Churn과 feature간의 유의미한 관계가 있는 데이터는 없다고 판단됩니다. <br>
-따라서 기본적인 model을 실행했을 때의 예상되는 Score은 둘의 비율인 0.71에 근접하는 결과가 나올 것 같습니다.<br>
-target의 데이터가 불균일하기 때문에 accuracy보다 precision과 recall의 결과에 대하여 주의해야할 것 같습니다.
+
+> Churn과 feature간의 유의미한 관계가 있는 데이터는 없다고 판단됩니다. <br>
+> 따라서 기본적인 model을 실행했을 때의 예상되는 score은 둘의 비율인 0.71에 근접하는 결과가 나올 것 같습니다. <br>
+> target의 데이터가 불균일하기 때문에 accuracy보다 precision과 recall의 결과에 대하여 주의해야할 것 같습니다. 
 
 <hr>
 
@@ -146,15 +150,15 @@ target의 데이터가 불균일하기 때문에 accuracy보다 precision과 rec
 - 모델 선정 기준: 시계열 관련 데이터가 없어 RNN, LSTM 제외, 그 외에도 데이터가 복잡하지 않아(이미지, 영상 등이 아니므로) MLP 선정했습니다.
 
 - 문제 및 해결방안:
-    - 정확도는 잘 나왔으나 loss수치가 0.58로 높았습니다. <br>
-    1. batch_size, learning_rate, hidden_dim, dropout_ratio 등 수동으로 parameter를 조정했습니다. <br>
-    1-1. layer수를 2개에서 3개로 늘렸습니다. <br>
-    1-2. Optimizer Adam에서 AdamW로 변경하였으나 유의미한 차이가 없었습니다.<br>
-    <br>
-    2. recall이 1.0이라는 수치가 나오는 현상이 발생했습니다.<br>
-    2-1. output_dim을 1에서 2로 늘리고 softmax()를 사용하였으며, 손실함수를ㄹ BCE에서 CE로 변경했습니다.<br>
-    <br>
-    3. nni를 통한 parameter tuning에서 문제가 있었습니다.
+	- 정확도는 잘 나왔으나 loss수치가 0.58로 높았습니다.
+1. batch_size, learning_rate, hidden_dim, dropout_ratio 등 수동으로 parameter를 조정했습니다.<br>
+1-1.layer수를 2개에서 3개로 늘렸습니다. <br>
+1-2.Optimizer Adam에서 AdamW로 변경하였으나 유의미한 차이가 없었습니다.<br>
+<br>
+2. recall이 1.0이라는 수치가 나오는 현상이 발생했습니다.<br>
+2-1. output_dim을 1에서 2로 늘리고 softmax()를 사용하였으며, 손실함수를ㄹ BCE에서 CE로 변경했습니다.<br>
+<br>
+3. nni를 통한 parameter tuning에서 문제가 있었습니다.
 
 <hr>
 
@@ -216,7 +220,7 @@ target의 데이터가 불균일하기 때문에 accuracy보다 precision과 rec
 박진효 - 고생 많이 한 팀원들 감사합니다. 부족한 팀장이라 미안합니다.
 ```
 ```
-고유림 - 어려웠습니다. 한발짝 좀 더 나가아갔던 시간이었습니다.
+고유림 - 어려웠던 시간이었지만, 한발짝 좀 더 나아갔던 시간이었습니다.
 ```
 ```
 이진섭 - 환경 설정에서 여러 이슈를 겪으며 해결하는 데 많은 애를 먹었지만, 앞으로는 더 신중하게 설정해야겠다.
